@@ -6,3 +6,10 @@ the run sequence is as followed
 2. python readFromMongo.py
 3. python itemSame.py or cf.py -r hadoop input.txt >>results.txt
 4. python formingJson.py
+
+
+#liveRec
+recommend live show based the data of huan dot com
+
+
+
