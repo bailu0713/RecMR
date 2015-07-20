@@ -12,7 +12,7 @@ import MySQLdb
 import random
 
 date = str(datetime.datetime.now()).split(" ")[0].replace("-", "")
-liveRec = open("E:\\IRE\\liveRec_%s.txt" % date, "w")
+liveRec = open("/bailu/rec/liveRec_%s.txt" % date, "w")
 
 secondsPerMinute = 60
 minutesPerHour = 60
