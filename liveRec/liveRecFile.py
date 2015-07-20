@@ -4,6 +4,7 @@ import sys
 
 reload(sys)
 sys.setdefaultencoding("utf8")
+
 import datetime
 import time
 import simplejson as sj
@@ -11,12 +12,13 @@ import MySQLdb
 import random
 
 date = str(datetime.datetime.now()).split(" ")[0].replace("-", "")
-liveRec = open("E:\\IRE\\huanEPG\\liveRec\\liveRec_%s.txt" % date, "w")
+liveRec = open("E:\\IRE\\liveRec_%s.txt" % date, "w")
 
 secondsPerMinute = 60
 minutesPerHour = 60
 hoursPerDay = 24
-dayDuration = 15
+#define how many days ago
+dayDuration = 0
 totalRecNum=16
 
 # tup = int(time.mktime(datetime.datetime.now().timetuple()))
@@ -87,11 +89,70 @@ def rec_variety_list():
     return data
 
 
+def rec_sport_list():
+    data = []
+    tmpDic = dict()
+    cursor.execute("select * from mediabestv where mtype<>'cartoon' and mtype<>'tv' and (plots like '%运动%' or tags like '%运动%') and tags not like '%爱情%' and tags not like '%纪实%' and tags not like '%恐怖%' and tags not like '%惊悚%'  ;")
+    temp = cursor.fetchall()
+    for doc in temp:
+        tmpDic["name_cn"] = doc[2]
+        tmpDic["mediaid"] = doc[0]
+        tmpDic["index"] = doc[1]
+        tmpDic["p_pic"] = doc[15]
+        data.append(tmpDic.copy())
+    return data
+
+
+def rec_science_list():
+    data = []
+    tmpDic = dict()
+    cursor.execute("select * from mediabestv where tags like '%科教%' and mtype='variety' ;")
+    temp = cursor.fetchall()
+    for doc in temp:
+        tmpDic["name_cn"] = doc[2]
+        tmpDic["mediaid"] = doc[0]
+        tmpDic["index"] = doc[1]
+        tmpDic["p_pic"] = doc[15]
+        data.append(tmpDic.copy())
+    return data
+
+
+def rec_finance_list():
+    data = []
+    tmpDic = dict()
+    cursor.execute("select * from mediabestv where mtype<>'cartoon' and (plots like '%证券%' or adword like '%股市%' or plots like '%股市%' or plots like '%房地产%');")
+    temp = cursor.fetchall()
+    for doc in temp:
+        tmpDic["name_cn"] = doc[2]
+        tmpDic["mediaid"] = doc[0]
+        tmpDic["index"] = doc[1]
+        tmpDic["p_pic"] = doc[15]
+        data.append(tmpDic.copy())
+    return data
+
+
+def rec_entainment_list():
+    data = []
+    tmpDic = dict()
+    cursor.execute("select * from mediabestv where mtype='variety' and tags not like '%纪实%' or (tags like '%纪实%' and tags like '%真人秀%' );")
+    temp = cursor.fetchall()
+    for doc in temp:
+        tmpDic["name_cn"] = doc[2]
+        tmpDic["mediaid"] = doc[0]
+        tmpDic["index"] = doc[1]
+        tmpDic["p_pic"] = doc[15]
+        data.append(tmpDic.copy())
+    return data
+
+
 tvlist = rec_tv_list()
 cartoonlist = rec_cartoon_list()
 movielist = rec_movie_list()
 varietylist = rec_variety_list()
-
+sportlist=rec_sport_list()
+sciencelist=rec_science_list()
+financelist=rec_finance_list()
+entainmentlist=rec_entainment_list()
 
 start = time.time()
 
@@ -109,7 +170,7 @@ def rec_list():
             if index == 0:
                 index += 1
                 cursor.execute(
-                    'select a.channelId,a.channelName,a.programTitle from (select channelId,channelName,programTitle from livemedia where startTime<="%s" and endTime> "%s" and channelId <> "cctv1" and channelId<>"cctv5"and channelId <> "cctv6" and channelId<>"cctv3" and channelId <> "cctv8" and channelId<>"5927c7a6dd31f38686fafa073e2e13bc" and channelId<>"590e187a8799b1890175d25ec85ea352" and channelId<>"28502a1b6bf5fbe7c6da9241db596237" and channelId<>"9291c40ec1cec1281638720c74c7245f" and channelId<>"1ce026a774dba0d13dc0cef453248fb7" and channelId<>"5dfcaefe6e7203df9fbe61ffd64ed1c4" and channelId<>"23ab87816c24f90e5865116512e12c47" and channelId<>"20831bb807a45638cfaf81df1122024d" and channelId<>"55fc65ef82e92d0e1ccb2b3f200a7529" and channelId<>"c8bf387b1824053bdb0423ef806a2227" and channelId<>"c39a7a374d888bce3912df71bcb0d580" and channelId<>"6a3f44b1abfdfb49ddd051f9e683c86d" and channelId<>"dragontv" and channelId<>"322fa7b66243b8d0edef9d761a42f263" and channelId<>"antv"and wikiTitle<>"广告")a left join (select channel,tvRating,minute_time from audiencerate_min where minute_time= "%s" and date_time="2015-05-12")b on a.channelName=b.channel order by b.tvRating desc;' % (
+                    'select a.channelId,a.channelName,a.programTitle from (select channelId,channelName,programTitle,serviceId from livemedia where startTime<="%s" and endTime> "%s" and channelId <> "cctv1" and channelId<>"cctv5"and channelId <> "cctv6" and channelId<>"cctv3" and channelId <> "cctv8" and channelId<>"5927c7a6dd31f38686fafa073e2e13bc" and channelId<>"590e187a8799b1890175d25ec85ea352" and channelId<>"28502a1b6bf5fbe7c6da9241db596237" and channelId<>"9291c40ec1cec1281638720c74c7245f" and channelId<>"1ce026a774dba0d13dc0cef453248fb7" and channelId<>"5dfcaefe6e7203df9fbe61ffd64ed1c4" and channelId<>"23ab87816c24f90e5865116512e12c47" and channelId<>"20831bb807a45638cfaf81df1122024d" and channelId<>"55fc65ef82e92d0e1ccb2b3f200a7529" and channelId<>"c8bf387b1824053bdb0423ef806a2227" and channelId<>"c39a7a374d888bce3912df71bcb0d580" and channelId<>"6a3f44b1abfdfb49ddd051f9e683c86d" and channelId<>"dragontv" and channelId<>"322fa7b66243b8d0edef9d761a42f263" and channelId<>"antv"and wikiTitle<>"广告")a left join (select channel,tvRating,minute_time from live_audience_rating where minute_time= "%s" and date_time="2015-07-08")b on a.serviceId=b.channel order by b.tvRating desc;' % (
                         database_time, database_time, audiencerate_time))
                 result = cursor.fetchall()
                 rec_result['time'] = database_time.replace(":", "").replace("-", "").replace(" ", "")[0:12]
@@ -134,7 +195,7 @@ def rec_list():
                     liveRec.write("\n")
             else:
                 cursor.execute(
-                    'select a.channelId,a.channelName,a.programTitle from (select channelId,channelName,programTitle from livemedia where startTime<="%s" and endTime> "%s" and programType ="%s" and channelId <> "cctv1" and channelId<>"cctv5"and channelId <> "cctv6" and channelId<>"cctv3" and channelId <> "cctv8" and channelId<>"5927c7a6dd31f38686fafa073e2e13bc" and channelId<>"590e187a8799b1890175d25ec85ea352" and channelId<>"28502a1b6bf5fbe7c6da9241db596237" and channelId<>"9291c40ec1cec1281638720c74c7245f" and channelId<>"1ce026a774dba0d13dc0cef453248fb7" and channelId<>"5dfcaefe6e7203df9fbe61ffd64ed1c4" and channelId<>"23ab87816c24f90e5865116512e12c47" and channelId<>"20831bb807a45638cfaf81df1122024d" and channelId<>"55fc65ef82e92d0e1ccb2b3f200a7529" and channelId<>"c8bf387b1824053bdb0423ef806a2227" and channelId<>"c39a7a374d888bce3912df71bcb0d580" and channelId<>"6a3f44b1abfdfb49ddd051f9e683c86d" and channelId<>"dragontv" and channelId<>"322fa7b66243b8d0edef9d761a42f263" and channelId<>"antv"and wikiTitle<>"广告")a left join (select channel,tvRating,minute_time from audiencerate_min where minute_time= "%s" and date_time="2015-05-12")b on a.channelName=b.channel order by b.tvRating desc;' % (
+                    'select a.channelId,a.channelName,a.programTitle from (select channelId,channelName,programTitle,serviceId from livemedia where startTime<="%s" and endTime> "%s" and programType ="%s" and channelId <> "cctv1" and channelId<>"cctv5"and channelId <> "cctv6" and channelId<>"cctv3" and channelId <> "cctv8" and channelId<>"5927c7a6dd31f38686fafa073e2e13bc" and channelId<>"590e187a8799b1890175d25ec85ea352" and channelId<>"28502a1b6bf5fbe7c6da9241db596237" and channelId<>"9291c40ec1cec1281638720c74c7245f" and channelId<>"1ce026a774dba0d13dc0cef453248fb7" and channelId<>"5dfcaefe6e7203df9fbe61ffd64ed1c4" and channelId<>"23ab87816c24f90e5865116512e12c47" and channelId<>"20831bb807a45638cfaf81df1122024d" and channelId<>"55fc65ef82e92d0e1ccb2b3f200a7529" and channelId<>"c8bf387b1824053bdb0423ef806a2227" and channelId<>"c39a7a374d888bce3912df71bcb0d580" and channelId<>"6a3f44b1abfdfb49ddd051f9e683c86d" and channelId<>"dragontv" and channelId<>"322fa7b66243b8d0edef9d761a42f263" and channelId<>"antv"and wikiTitle<>"广告")a left join (select channel,tvRating,minute_time from live_audience_rating where minute_time= "%s" and date_time="2015-05-12")b on a.serviceId=b.channel order by b.tvRating desc;' % (
                         database_time, database_time, column, audiencerate_time))
                 result = cursor.fetchall()
                 rec_result['time'] = database_time.replace(":", "").replace("-", "").replace(" ", "")[0:12]
@@ -194,6 +255,82 @@ def rec_list():
                     else:
                         rec_result['rec_list'] = rec_list
                         rec_result['vod_list'] = random.sample(cartoonlist, totalRecNum)
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                elif column == "体育":
+                    if len(result) >= totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    elif len(result) >= 1 and len(result) < totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(sportlist, totalRecNum - len(result))
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    else:
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(sportlist, totalRecNum)
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                elif column == "科教":
+                    if len(result) >= totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    elif len(result) >= 1 and len(result) < totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(sciencelist, totalRecNum - len(result))
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    else:
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(sciencelist, totalRecNum)
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                elif column == "财经":
+                    if len(result) >= totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    elif len(result) >= 1 and len(result) < totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(financelist, totalRecNum - len(result))
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    else:
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(financelist, totalRecNum)
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                elif column == "娱乐":
+                    if len(result) >= totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    elif len(result) >= 1 and len(result) < totalRecNum:
+                        for doc in result:
+                            rec_list.append(doc[0])
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(entainmentlist, totalRecNum - len(result))
+                        liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
+                        liveRec.write("\n")
+                    else:
+                        rec_result['rec_list'] = rec_list
+                        rec_result['vod_list'] = random.sample(entainmentlist, totalRecNum)
                         liveRec.write(sj.dumps(rec_result, ensure_ascii=False))
                         liveRec.write("\n")
                 else:
